@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Yuvraj Tak">
+    <meta name="description" content="Interactive Rock Paper Scissors game with animations - Created by Yuvraj Tak">
+    <title>Rock Paper Scissors Game - By Yuvraj Tak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .score {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            min-width: 100px;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+        }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 4em;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .choice-btn:active {
+            transform: scale(0.95);
+        }
+
+        .battle-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            min-height: 200px;
+        }
+
+        .player-choice, .computer-choice {
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            transition: all 0.5s ease;
+        }
+
+        .vs {
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .result {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .win {
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .lose {
+            color: #f44336;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .draw {
+            color: #FF9800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .play-again {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-again:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .pulse {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .countdown {
+            font-size: 3em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .choices {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .choice-btn {
+                width: 100px;
+                height: 100px;
+                font-size: 3em;
+            }
+            
+            .battle-area {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .player-choice, .computer-choice {
+                width: 120px;
+                height: 120px;
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Rock Paper Scissors</h1>
+        <p style="margin-bottom: 20px; opacity: 0.8; font-size: 0.9em;">Created with ❤️ by Yuvraj Tak</p>
+        
+        <div class="score-board">
+            <div class="score">
+                <div>Player</div>
+                <div id="player-score">0</div>
+            </div>
+            <div class="score">
+                <div>Computer</div>
+                <div id="computer-score">0</div>
+            </div>
+        </div>
+
+        <div class="choices" id="choices">
+            <button class="choice-btn" data-choice="0">🪨</button>
+            <button class="choice-btn" data-choice="1">📄</button>
+            <button class="choice-btn" data-choice="2">✂️</button>
+        </div>
+
+        <div class="battle-area">
+            <div class="player-choice" id="player-choice">❓</div>
+            <div class="vs" id="vs-text">VS</div>
+            <div class="computer-choice" id="computer-choice">❓</div>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <button class="play-again hidden" id="play-again">Play Again</button>
+    </div>
+
+    <script>
+        class RockPaperScissors {
+            constructor() {
+                this.choices = ['🪨', '📄', '✂️'];
+                this.choiceNames = ['Rock', 'Paper', 'Scissors'];
+                this.playerScore = 0;
+                this.computerScore = 0;
+                this.isPlaying = false;
+                
+                this.init();
+            }
+
+            init() {
+                const choiceButtons = document.querySelectorAll('.choice-btn');
+                const playAgainBtn = document.getElementById('play-again');
+                
+                choiceButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        if (!this.isPlaying) {
+                            this.playGame(parseInt(e.target.dataset.choice));
+                        }
+                    });
+                });
+
+                playAgainBtn.addEventListener('click', () => {
+                    this.resetGame();
+                });
+            }
+
+            async playGame(playerChoice) {
+                this.isPlaying = true;
+                const choices = document.getElementById('choices');
+                const playerChoiceEl = document.getElementById('player-choice');
+                const computerChoiceEl = document.getElementById('computer-choice');
+                const resultEl = document.getElementById('result');
+                const vsText = document.getElementById('vs-text');
+                const playAgainBtn = document.getElementById('play-again');
+
+                // Hide choices and play again button
+                choices.classList.add('hidden');
+                playAgainBtn.classList.add('hidden');
+
+                // Show player choice immediately
+                playerChoiceEl.textContent = this.choices[playerChoice];
+                playerChoiceEl.classList.add('pulse');
+
+                // Countdown animation
+                vsText.classList.add('countdown');
+                for (let i = 3; i > 0; i--) {
+                    vsText.textContent = i;
+                    await this.sleep(1000);
+                }
+                vsText.textContent = 'VS';
+                vsText.classList.remove('countdown');
+
+                // Generate computer choice
+                const computerChoice = Math.floor(Math.random() * 3);
+                computerChoiceEl.textContent = this.choices[computerChoice];
+                computerChoiceEl.classList.add('pulse');
+
+                // Add shake animation
+                playerChoiceEl.classList.add('shake');
+                computerChoiceEl.classList.add('shake');
+
+                await this.sleep(500);
+
+                // Determine winner
+                const result = this.determineWinner(playerChoice, computerChoice);
+                this.displayResult(result);
+
+                // Update scores
+                if (result === 'win') {
+                    this.playerScore++;
+                } else if (result === 'lose') {
+                    this.computerScore++;
+                }
+                
+                this.updateScores();
+
+                // Clean up animations
+                playerChoiceEl.classList.remove('pulse', 'shake');
+                computerChoiceEl.classList.remove('pulse', 'shake');
+
+                // Show play again button
+                playAgainBtn.classList.remove('hidden');
+                this.isPlaying = false;
+            }
+
+            determineWinner(playerChoice, computerChoice) {
+                // Draw conditions
+                if (playerChoice === computerChoice) {
+                    return 'draw';
+                }
+
+                // Win conditions (based on your original logic)
+                if ((computerChoice === 0 && playerChoice === 1) || // rock vs paper
+                    (computerChoice === 1 && playerChoice === 2) || // paper vs scissors
+                    (computerChoice === 2 && playerChoice === 0)) { // scissors vs rock
+                    return 'win';
+                }
+
+                // Otherwise, player loses
+                return 'lose';
+            }
+
+            displayResult(result) {
+                const resultEl = document.getElementById('result');
+                resultEl.classList.remove('win', 'lose', 'draw');
+
+                switch (result) {
+                    case 'win':
+                        resultEl.textContent = '🎉 You Win!';
+                        resultEl.classList.add('win');
+                        break;
+                    case 'lose':
+                        resultEl.textContent = '😞 You Lose!';
+                        resultEl.classList.add('lose');
+                        break;
+                    case 'draw':
+                        resultEl.textContent = '🤝 It\'s a Draw!';
+                        resultEl.classList.add('draw');
+                        break;
+                }
+            }
+
+            updateScores() {
+                document.getElementById('player-score').textContent = this.playerScore;
+                document.getElementById('computer-score').textContent = this.computerScore;
+            }
+
+            resetGame() {
+                const playerChoiceEl = document.getElementById('player-choice');
+                const computerChoiceEl = document.getElementById('computer-choice');
+                const resultEl = document.getElementById('result');
+                const choices = document.getElementById('choices');
+                const playAgainBtn = document.getElementById('play-again');
+
+                // Reset display
+                playerChoiceEl.textContent = '❓';
+                computerChoiceEl.textContent = '❓';
+                resultEl.textContent = '';
+                resultEl.classList.remove('win', 'lose', 'draw');
+
+                // Show choices, hide play again
+                choices.classList.remove('hidden');
+                playAgainBtn.classList.add('hidden');
+
+                this.isPlaying = false;
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', () => {
+            new RockPaperScissors();
+            
+            // Add creator signature to console
+            console.log("🎮 Rock Paper Scissors Game");
+            console.log("Created by: Yuvraj Tak");
+            console.log("Based on Python logic converted to web game");
+            console.log("GitHub: https://github.com/Yuvrajtakk");
+        });
+    </script>
+</body>
+</html>
