@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Password Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #000;
+            color: #00ff00;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 900;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 10px;
+            animation: flicker 2s infinite alternate;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+
+        @keyframes flicker {
+            0% { text-shadow: 0 0 10px #00ff00; }
+            100% { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .generator-panel {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .panel-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .analysis-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.03);
+            border-left: 3px solid #00ff00;
+        }
+
+        .analysis-item h3 {
+            color: #00ff00;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .analysis-item p {
+            font-size: 0.9em;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .severity {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .severity.high { background: #ff0000; color: #fff; }
+        .severity.medium { background: #ffaa00; color: #000; }
+        .severity.low { background: #00ff00; color: #000; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Orbitron', monospace;
+            border-radius: 5px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #003300, #006600);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Orbitron', monospace;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(45deg, #006600, #009900);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .password-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .code-view {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 40px;
+            overflow-x: auto;
+        }
+
+        .code-view pre {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .comment {
+            color: #666;
+            font-style: italic;
+        }
+
+        .keyword {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #ffff00;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    
+    <div class="container">
+        <div class="header">
+            <h1>MATRIX PASSWORD GENERATOR</h1>
+            <p>Critical Analysis & Enhanced Security Protocol</p>
+        </div>
+
+        <div class="main-content">
+            <div class="generator-panel">
+                <h2 class="panel-title">PASSWORD GENERATOR</h2>
+                
+                <div class="form-group">
+                    <label for="letters">Letters (min 1):</label>
+                    <input type="number" id="letters" min="1" max="50" value="8">
+                </div>
+
+                <div class="form-group">
+                    <label for="symbols">Symbols (min 1):</label>
+                    <input type="number" id="symbols" min="1" max="20" value="2">
+                </div>
+
+                <div class="form-group">
+                    <label for="numbers">Numbers (min 1):</label>
+                    <input type="number" id="numbers" min="1" max="20" value="2">
+                </div>
+
+                <button class="generate-btn" onclick="generatePassword()">GENERATE SECURE PASSWORD</button>
+                
+                <div class="password-output" id="passwordOutput">
+                    Click generate to create your secure password
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix rain effect
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+
+        const rainDrops = [];
+
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ff00';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        }
+
+        setInterval(draw, 30);
+
+        // Enhanced password generator
+        function generatePassword() {
+            const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?~`';
+
+            const nrLetters = Math.max(1, parseInt(document.getElementById('letters').value) || 8);
+            const nrSymbols = Math.max(1, parseInt(document.getElementById('symbols').value) || 2);
+            const nrNumbers = Math.max(1, parseInt(document.getElementById('numbers').value) || 2);
+
+            let password = [];
+
+            // Ensure minimum requirements
+            for (let i = 0; i < nrLetters; i++) {
+                password.push(letters[Math.floor(Math.random() * letters.length)]);
+            }
+
+            for (let i = 0; i < nrSymbols; i++) {
+                password.push(symbols[Math.floor(Math.random() * symbols.length)]);
+            }
+
+            for (let i = 0; i < nrNumbers; i++) {
+                password.push(numbers[Math.floor(Math.random() * numbers.length)]);
+            }
+
+            // Shuffle for unpredictability
+            for (let i = password.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [password[i], password[j]] = [password[j], password[i]];
+            }
+
+            const finalPassword = password.join('');
+            document.getElementById('passwordOutput').textContent = finalPassword;
+        }
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
