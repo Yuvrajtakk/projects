@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for a calculator look and feel */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+        }
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 1rem;
+        }
+        .btn {
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        /* Making the display text size responsive */
+        .display {
+            font-size: 3rem; /* Default size for larger screens */
+        }
+        @media (max-width: 480px) {
+            .display {
+                font-size: 2.5rem; /* Smaller size for mobile */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md mx-auto p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6">
+            
+            <!-- Display Screen -->
+            <div class="bg-gray-200 dark:bg-gray-700 rounded-lg p-4 mb-6 text-right overflow-hidden">
+                <div id="previous-operand" class="text-gray-500 dark:text-gray-400 text-xl h-8"></div>
+                <div id="current-operand" class="text-gray-800 dark:text-white font-bold text-5xl break-words display h-16 flex items-center justify-end">0</div>
+            </div>
+
+            <!-- Calculator Buttons Grid -->
+            <div class="calculator-grid">
+                <!-- Row 1 -->
+                <button data-action="clear" class="btn col-span-2 bg-red-500 hover:bg-red-600 text-white text-2xl font-bold rounded-lg p-4 shadow-md">AC</button>
+                <button data-action="delete" class="btn bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">DEL</button>
+                <button data-operator="/" class="btn bg-orange-500 hover:bg-orange-600 text-white text-2xl font-bold rounded-lg p-4 shadow-md">÷</button>
+                
+                <!-- Row 2 -->
+                <button data-number="7" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">7</button>
+                <button data-number="8" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">8</button>
+                <button data-number="9" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">9</button>
+                <button data-operator="*" class="btn bg-orange-500 hover:bg-orange-600 text-white text-2xl font-bold rounded-lg p-4 shadow-md">×</button>
+
+                <!-- Row 3 -->
+                <button data-number="4" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">4</button>
+                <button data-number="5" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">5</button>
+                <button data-number="6" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">6</button>
+                <button data-operator="-" class="btn bg-orange-500 hover:bg-orange-600 text-white text-2xl font-bold rounded-lg p-4 shadow-md">-</button>
+
+                <!-- Row 4 -->
+                <button data-number="1" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">1</button>
+                <button data-number="2" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">2</button>
+                <button data-number="3" class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">3</button>
+                <button data-operator="+" class="btn bg-orange-500 hover:bg-orange-600 text-white text-2xl font-bold rounded-lg p-4 shadow-md">+</button>
+
+                <!-- Row 5 -->
+                <button data-number="0" class="btn col-span-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">0</button>
+                <button data-number="." class="btn bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-2xl font-bold rounded-lg p-4 shadow-md">.</button>
+                <button data-action="equals" class="btn bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-lg p-4 shadow-md">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Calculator Logic ---
+        // This script replicates the functionality of your Python calculator project.
+
+        // Get all the buttons and display elements from the DOM
+        const numberButtons = document.querySelectorAll('[data-number]');
+        const operatorButtons = document.querySelectorAll('[data-operator]');
+        const equalsButton = document.querySelector('[data-action="equals"]');
+        const deleteButton = document.querySelector('[data-action="delete"]');
+        const allClearButton = document.querySelector('[data-action="clear"]');
+        const previousOperandTextElement = document.getElementById('previous-operand');
+        const currentOperandTextElement = document.getElementById('current-operand');
+
+        // --- State Variables ---
+        // These variables hold the calculator's state, similar to how your Python script
+        // held 'num1', 'num2', and the chosen operation.
+        let currentOperand = '0';
+        let previousOperand = '';
+        let operation = undefined;
+        let shouldResetScreen = false;
+
+        // --- Core Functions ---
+
+        /**
+         * Clears all state variables and resets the display.
+         * This is like the 'AC' button.
+         */
+        function clear() {
+            currentOperand = '0';
+            previousOperand = '';
+            operation = undefined;
+            updateDisplay();
+        }
+
+        /**
+         * Removes the last character from the current operand.
+         * This is the 'DEL' button.
+         */
+        function deleteLast() {
+            if (currentOperand.length <= 1) {
+                currentOperand = '0';
+            } else {
+                currentOperand = currentOperand.toString().slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        /**
+         * Appends a number or a decimal point to the current operand.
+         * It prevents multiple decimal points.
+         * @param {string} number - The number or '.' to append.
+         */
+        function appendNumber(number) {
+            if (number === '.' && currentOperand.includes('.')) return; // Don't allow multiple dots
+            if (currentOperand === '0' && number !== '.') {
+                currentOperand = number;
+            } else {
+                currentOperand += number;
+            }
+        }
+        
+        /**
+         * Sets the chosen operation (+, -, *, /) and moves the current
+         * number to be the 'previous operand'.
+         * @param {string} op - The operator symbol.
+         */
+        function chooseOperation(op) {
+            if (currentOperand === '' && previousOperand !== '') {
+                operation = op;
+                updateDisplay();
+                return;
+            }
+            if (currentOperand === '') return;
+            if (previousOperand !== '') {
+                compute();
+            }
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '';
+            shouldResetScreen = true;
+        }
+
+        /**
+         * Performs the calculation based on the stored operands and operation.
+         * This is the equivalent of `operations[sym](num1, num2)` in your Python code.
+         */
+        function compute() {
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        alert("Error: Cannot divide by zero!");
+                        clear();
+                        return;
+                    }
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            // Round to a reasonable number of decimal places to avoid floating point issues
+            currentOperand = Math.round(computation * 100000000) / 100000000;
+            operation = undefined;
+            previousOperand = '';
+            shouldResetScreen = true;
+        }
+
+        /**
+         * Updates the display elements with the current state.
+         * It formats the numbers for better readability.
+         */
+        function updateDisplay() {
+            // Display current operand
+            currentOperandTextElement.innerText = currentOperand.toLocaleString('en-US', { maximumFractionDigits: 8 });
+            
+            // Display previous operand and operation
+            if (operation != null) {
+                previousOperandTextElement.innerText = `${previousOperand.toLocaleString('en-US', { maximumFractionDigits: 8 })} ${operation === '*' ? '×' : operation === '/' ? '÷' : operation}`;
+            } else {
+                previousOperandTextElement.innerText = '';
+            }
+        }
+
+        // --- Event Listeners ---
+        // These connect the button clicks to the functions defined above.
+
+        allClearButton.addEventListener('click', () => {
+            clear();
+        });
+
+        deleteButton.addEventListener('click', () => {
+            deleteLast();
+        });
+        
+        equalsButton.addEventListener('click', () => {
+            compute();
+            updateDisplay();
+        });
+
+        numberButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (shouldResetScreen) {
+                    currentOperand = '';
+                    shouldResetScreen = false;
+                }
+                appendNumber(button.innerText);
+                updateDisplay();
+            });
+        });
+
+        operatorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                chooseOperation(button.dataset.operator);
+                updateDisplay();
+            });
+        });
+
+        // Initialize the display on page load
+        updateDisplay();
+    </script>
+</body>
+</html>
