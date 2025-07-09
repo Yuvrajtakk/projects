@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Higher or Lower Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score {
+            font-size: 1.3rem;
+            background: rgba(255,255,255,0.2);
+            padding: 12px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 30px;
+            margin-bottom: 30px;
+            min-height: 500px;
+        }
+
+        .profile-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .profile-card:hover::before {
+            left: 100%;
+        }
+
+        .profile-card:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .profile-card:active {
+            transform: scale(0.98);
+        }
+
+        .profile-card.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 30px rgba(255,215,0,0.5);
+        }
+
+        .profile-image {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.8);
+            border: 3px solid rgba(255,255,255,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .profile-card:hover .profile-image {
+            transform: scale(1.1);
+            border-color: rgba(255,255,255,0.7);
+        }
+
+        .profile-name {
+            font-size: 1.9rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+            line-height: 1.2;
+        }
+
+        .profile-description {
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .profile-country {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .follower-count {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-top: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .vs-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            position: relative;
+        }
+
+        .vs-text {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+            transform: rotate(-5deg);
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(-5deg) scale(1.1); }
+        }
+
+        .instruction {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .result {
+            text-align: center;
+            font-size: 1.4rem;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .result.correct {
+            background: rgba(76, 175, 80, 0.8);
+            border: 2px solid #4caf50;
+            color: white;
+        }
+
+        .result.incorrect {
+            background: rgba(244, 67, 54, 0.8);
+            border: 2px solid #f44336;
+            color: white;
+        }
+
+        .game-over {
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 50px;
+            border-radius: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .game-over h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .game-over p {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #333;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: rgba(0,0,0,0.3);
+            margin-top: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .credit {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .vs-section {
+                min-width: auto;
+                padding: 15px 0;
+            }
+
+            .vs-text {
+                font-size: 2.5rem;
+            }
+
+            .profile-card {
+                padding: 25px;
+            }
+
+            .profile-image {
+                width: 120px;
+                height: 120px;
+            }
+
+            .logo {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Higher or Lower</div>
+            <div class="score">Score: <span id="score">0</span></div>
+        </div>
+
+        <div id="game-container">
+            <div class="instruction">
+                Click on the profile you think has more followers!
+            </div>
+
+            <div class="game-area">
+                <div class="profile-card" id="profile-a" onclick="makeGuess('A')">
+                    <div class="profile-image">📸</div>
+                    <div class="profile-name" id="name-a"></div>
+                    <div class="profile-description" id="desc-a"></div>
+                    <div class="profile-country" id="country-a"></div>
+                    <div class="follower-count" id="followers-a"></div>
+                </div>
+
+                <div class="vs-section">
+                    <div class="vs-text">VS</div>
+                </div>
+
+                <div class="profile-card" id="profile-b" onclick="makeGuess('B')">
+                    <div class="profile-image">📸</div>
+                    <div class="profile-name" id="name-b"></div>
+                    <div class="profile-description" id="desc-b"></div>
+                    <div class="profile-country" id="country-b"></div>
+                    <div class="follower-count" id="followers-b" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div id="result" class="result" style="display: none;"></div>
+        </div>
+
+        <div id="game-over" class="game-over" style="display: none;">
+            <h2>🎮 Game Over! 🎮</h2>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="credit">Created by Yuvraj Tak</div>
+    </div>
+
+    <script>
+        const gameData = [
+            {
+                'name': 'Instagram',
+                'follower_count': 346,
+                'description': 'Social media platform',
+                'country': 'United States'
+            },
+            {
+                'name': 'Cristiano Ronaldo',
+                'follower_count': 215,
+                'description': 'Footballer',
+                'country': 'Portugal'
+            },
+            {
+                'name': 'Ariana Grande',
+                'follower_count': 183,
+                'description': 'Musician and actress',
+                'country': 'United States'
+            },
+            {
+                'name': 'Dwayne Johnson',
+                'follower_count': 181,
+                'description': 'Actor and professional wrestler',
+                'country': 'United States'
+            },
+            {
+                'name': 'Selena Gomez',
+                'follower_count': 174,
+                'description': 'Musician and actress',
+                'country': 'United States'
+            },
+            {
+                'name': 'Kylie Jenner',
+                'follower_count': 172,
+                'description': 'Reality TV personality and businesswoman',
+                'country': 'United States'
+            },
+            {
+                'name': 'Kim Kardashian',
+                'follower_count': 167,
+                'description': 'Reality TV personality and businesswoman',
+                'country': 'United States'
+            },
+            {
+                'name': 'Lionel Messi',
+                'follower_count': 149,
+                'description': 'Footballer',
+                'country': 'Argentina'
+            },
+            {
+                'name': 'Beyoncé',
+                'follower_count': 145,
+                'description': 'Musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'Neymar',
+                'follower_count': 138,
+                'description': 'Footballer',
+                'country': 'Brasil'
+            },
+            {
+                'name': 'National Geographic',
+                'follower_count': 135,
+                'description': 'Magazine',
+                'country': 'United States'
+            },
+            {
+                'name': 'Justin Bieber',
+                'follower_count': 133,
+                'description': 'Musician',
+                'country': 'Canada'
+            },
+            {
+                'name': 'Taylor Swift',
+                'follower_count': 131,
+                'description': 'Musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'Kendall Jenner',
+                'follower_count': 127,
+                'description': 'Reality TV personality and Model',
+                'country': 'United States'
+            },
+            {
+                'name': 'Jennifer Lopez',
+                'follower_count': 119,
+                'description': 'Musician and actress',
+                'country': 'United States'
+            },
+            {
+                'name': 'Nicki Minaj',
+                'follower_count': 113,
+                'description': 'Musician',
+                'country': 'Trinidad and Tobago'
+            },
+            {
+                'name': 'Nike',
+                'follower_count': 109,
+                'description': 'Sportswear multinational',
+                'country': 'United States'
+            },
+            {
+                'name': 'Khloé Kardashian',
+                'follower_count': 108,
+                'description': 'Reality TV personality and businesswoman',
+                'country': 'United States'
+            },
+            {
+                'name': 'Miley Cyrus',
+                'follower_count': 107,
+                'description': 'Musician and actress',
+                'country': 'United States'
+            },
+            {
+                'name': 'Katy Perry',
+                'follower_count': 94,
+                'description': 'Musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'Kourtney Kardashian',
+                'follower_count': 90,
+                'description': 'Reality TV personality',
+                'country': 'United States'
+            },
+            {
+                'name': 'Kevin Hart',
+                'follower_count': 89,
+                'description': 'Comedian and actor',
+                'country': 'United States'
+            },
+            {
+                'name': 'Ellen DeGeneres',
+                'follower_count': 87,
+                'description': 'Comedian',
+                'country': 'United States'
+            },
+            {
+                'name': 'Real Madrid CF',
+                'follower_count': 86,
+                'description': 'Football club',
+                'country': 'Spain'
+            },
+            {
+                'name': 'FC Barcelona',
+                'follower_count': 85,
+                'description': 'Football club',
+                'country': 'Spain'
+            },
+            {
+                'name': 'Rihanna',
+                'follower_count': 81,
+                'description': 'Musician and businesswoman',
+                'country': 'Barbados'
+            },
+            {
+                'name': 'Demi Lovato',
+                'follower_count': 80,
+                'description': 'Musician and actress',
+                'country': 'United States'
+            },
+            {
+                'name': "Victoria's Secret",
+                'follower_count': 69,
+                'description': 'Lingerie brand',
+                'country': 'United States'
+            },
+            {
+                'name': 'Zendaya',
+                'follower_count': 68,
+                'description': 'Actress and musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'Shakira',
+                'follower_count': 66,
+                'description': 'Musician',
+                'country': 'Colombia'
+            },
+            {
+                'name': 'Drake',
+                'follower_count': 65,
+                'description': 'Musician',
+                'country': 'Canada'
+            },
+            {
+                'name': 'Chris Brown',
+                'follower_count': 64,
+                'description': 'Musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'LeBron James',
+                'follower_count': 63,
+                'description': 'Basketball player',
+                'country': 'United States'
+            },
+            {
+                'name': 'Vin Diesel',
+                'follower_count': 62,
+                'description': 'Actor',
+                'country': 'United States'
+            },
+            {
+                'name': 'Cardi B',
+                'follower_count': 67,
+                'description': 'Musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'David Beckham',
+                'follower_count': 82,
+                'description': 'Footballer',
+                'country': 'United Kingdom'
+            },
+            {
+                'name': 'Billie Eilish',
+                'follower_count': 61,
+                'description': 'Musician',
+                'country': 'United States'
+            },
+            {
+                'name': 'Justin Timberlake',
+                'follower_count': 59,
+                'description': 'Musician and actor',
+                'country': 'United States'
+            },
+            {
+                'name': 'UEFA Champions League',
+                'follower_count': 58,
+                'description': 'Club football competition',
+                'country': 'Europe'
+            },
+            {
+                'name': 'NASA',
+                'follower_count': 56,
+                'description': 'Space agency',
+                'country': 'United States'
+            },
+            {
+                'name': 'Emma Watson',
+                'follower_count': 56,
+                'description': 'Actress',
+                'country': 'United Kingdom'
+            },
+            {
+                'name': 'Shawn Mendes',
+                'follower_count': 57,
+                'description': 'Musician',
+                'country': 'Canada'
+            },
+            {
+                'name': 'Virat Kohli',
+                'follower_count': 55,
+                'description': 'Cricketer',
+                'country': 'India'
+            },
+            {
+                'name': 'Gigi Hadid',
+                'follower_count': 54,
+                'description': 'Model',
+                'country': 'United States'
+            },
+            {
+                'name': 'Priyanka Chopra Jonas',
+                'follower_count': 53,
+                'description': 'Actress and musician',
+                'country': 'India'
+            },
+            {
+                'name': '9GAG',
+                'follower_count': 52,
+                'description': 'Social media platform',
+                'country': 'China'
+            },
+            {
+                'name': 'Ronaldinho',
+                'follower_count': 51,
+                'description': 'Footballer',
+                'country': 'Brasil'
+            },
+            {
+                'name': 'Maluma',
+                'follower_count': 50,
+                'description': 'Musician',
+                'country': 'Colombia'
+            },
+            {
+                'name': 'Camila Cabello',
+                'follower_count': 49,
+                'description': 'Musician',
+                'country': 'Cuba'
+            },
+            {
+                'name': 'NBA',
+                'follower_count': 47,
+                'description': 'Club Basketball Competition',
+                'country': 'United States'
+            }
+        ];
+
+        let score = 0;
+        let currentA = null;
+        let currentB = null;
+        let gameActive = true;
+
+        function getRandomProfile() {
+            return gameData[Math.floor(Math.random() * gameData.length)];
+        }
+
+        function initializeGame() {
+            currentA = getRandomProfile();
+            currentB = getRandomProfile();
+            
+            while (currentA === currentB) {
+                currentB = getRandomProfile();
+            }
+
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('name-a').textContent = currentA.name;
+            document.getElementById('desc-a').textContent = currentA.description;
+            document.getElementById('country-a').textContent = `From ${currentA.country}`;
+            document.getElementById('followers-a').textContent = `${currentA.follower_count}M followers`;
+
+            document.getElementById('name-b').textContent = currentB.name;
+            document.getElementById('desc-b').textContent = currentB.description;
+            document.getElementById('country-b').textContent = `From ${currentB.country}`;
+            document.getElementById('followers-b').textContent = `${currentB.follower_count}M followers`;
+        }
+
+        function makeGuess(choice) {
+            if (!gameActive) return;
+
+            const guessedProfile = choice === 'A' ? currentA : currentB;
+            const winner = currentA.follower_count > currentB.follower_count ? currentA : currentB;
+            const isCorrect = guessedProfile === winner;
+
+            // Disable cards
+            document.getElementById('profile-a').classList.add('disabled');
+            document.getElementById('profile-b').classList.add('disabled');
+            
+            // Highlight selected card
+            document.getElementById(`profile-${choice.toLowerCase()}`).classList.add('selected');
+
+            // Show follower count for B
+            document.getElementById('followers-b').style.display = 'block';
+
+            // Show result
+            const resultDiv = document.getElementById('result');
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+                resultDiv.textContent = `🎉 Correct! ${winner.name} has ${winner.follower_count}M followers. Great job!`;
+                resultDiv.className = 'result correct';
+                
+                // Continue game after a short delay
+                setTimeout(() => {
+                    nextRound();
+                }, 2500);
+            } else {
+                resultDiv.textContent = `😔 Oops! ${winner.name} has ${winner.follower_count}M followers. Better luck next time!`;
+                resultDiv.className = 'result incorrect';
+                
+                // End game after a short delay
+                setTimeout(() => {
+                    endGame();
+                }, 2500);
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        function nextRound() {
+            // Hide result
+            document.getElementById('result').style.display = 'none';
+            
+            // Remove disabled and selected classes
+            document.getElementById('profile-a').classList.remove('disabled', 'selected');
+            document.getElementById('profile-b').classList.remove('disabled', 'selected');
+            
+            // Hide B's follower count
+            document.getElementById('followers-b').style.display = 'none';
+            
+            // Move B to A position and get new B
+            currentA = currentB;
+            currentB = getRandomProfile();
+            
+            while (currentA === currentB) {
+                currentB = getRandomProfile();
+            }
+            
+            updateDisplay();
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('game-over').style.display = 'block';
+            document.getElementById('final-score').textContent = score;
+        }
+
+        function restartGame() {
+            gameActive = true;
+            score = 0;
+            document.getElementById('score').textContent = score;
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('followers-b').style.display = 'none';
+            
+            // Remove any lingering classes
+            document.getElementById('profile-a').classList.remove('disabled', 'selected');
+            document.getElementById('profile-b').classList.remove('disabled', 'selected');
+            
+            initializeGame();
+        }
+
+        // Start the game
+        initializeGame();
+    </script>
+</body>
+</html>
