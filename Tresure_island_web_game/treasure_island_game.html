@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Island Adventure</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .ascii-art {
+            font-size: 8px;
+            line-height: 1;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .game-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #ffd700;
+        }
+
+        .story-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .choice-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.5);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        .door-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(68, 160, 141, 0.3);
+        }
+
+        .door-btn:hover {
+            box-shadow: 0 6px 20px rgba(68, 160, 141, 0.5);
+        }
+
+        .door-btn.red {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+        }
+
+        .door-btn.yellow {
+            background: linear-gradient(45deg, #ffa502, #ff6348);
+        }
+
+        .door-btn.blue {
+            background: linear-gradient(45deg, #3742fa, #2f3542);
+        }
+
+        .game-over {
+            background: linear-gradient(45deg, #ff4757, #c44569);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .victory {
+            background: linear-gradient(45deg, #26de81, #20bf6b);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #5352ed, #40407a);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(83, 82, 237, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .ascii-art {
+                font-size: 6px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .story-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ascii-art">*******************************************************************************
+          |                   |                  |                     |
+ _________|________________.=""_;=.______________|_____________________|_______
+|                   |  ,-"_,=""     `"=.|                  |
+|___________________|__"=._o`"-._        `"=.______________|___________________
+          |                `"=._o`"=._      _`"=._                     |
+ _________|_____________________:=._o "=._."_.-="'"=.__________________|_______
+|                   |    __.--" , ; `"=._o." ,-"""-._ ".   |
+|___________________|_._"  ,. .` ` `` ,  `"-._"-._   ". '__|___________________
+          |           |o`"=._` , "` `; .". ,  "-._"-._; ;              |
+ _________|___________| ;`-.o`"=._; ." ` '`."\ ` . "-._ /_______________|_______
+|                   | |o ;    `"-.o`"=._``  '` " ,__.--o;   |
+|___________________|_| ;     (#) `-.o `"=.`_.--"_o.-; ;___|___________________
+____/______/______/___|o;._    "      `".o|o_.--"    ;o;____/______/______/____
+/______/______/______/_"=._o--._        ; | ;        ; ;/______/______/______/_
+____/______/______/______/__"=._o--._   ;o|o;     _._;o;____/______/______/____
+/______/______/______/______/____"=._o._; | ;_.--"o.--"_/______/______/______/_
+____/______/______/______/______/_____"=.o|o_.--""___/______/______/______/____
+/______/______/______/______/______/______/______/______/______/______/_____ /
+*******************************************************************************</div>
+        
+        <h1>🏴‍☠️ Treasure Island Adventure 🏴‍☠️</h1>
+        
+        <div id="gameContent" class="game-content">
+            <div class="story-text">
+                Welcome to Treasure Island!<br>
+                Your mission is to find the treasure.<br><br>
+                You are at a crossroad. Where do you want to go?
+            </div>
+            
+            <div class="choices">
+                <button class="choice-btn" onclick="makeChoice('left')">🚶‍♂️ Go Left</button>
+                <button class="choice-btn" onclick="makeChoice('right')">🚶‍♂️ Go Right</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStage = 'crossroad';
+        
+        function makeChoice(choice) {
+            const gameContent = document.getElementById('gameContent');
+            
+            if (currentStage === 'crossroad') {
+                if (choice === 'left') {
+                    currentStage = 'lake';
+                    gameContent.innerHTML = `
+                        <div class="story-text">
+                            You came to a lake. 🌊<br><br>
+                            Do you want to wait for a boat or swim across?
+                        </div>
+                        <div class="choices">
+                            <button class="choice-btn" onclick="makeChoice('wait')">⛵ Wait for a boat</button>
+                            <button class="choice-btn" onclick="makeChoice('swim')">🏊‍♂️ Swim across</button>
+                        </div>
+                    `;
+                } else {
+                    showGameOver("You fall into a hole. 🕳️");
+                }
+            } else if (currentStage === 'lake') {
+                if (choice === 'wait') {
+                    currentStage = 'doors';
+                    gameContent.innerHTML = `
+                        <div class="story-text">
+                            You arrive at the island unharmed! 🏝️<br><br>
+                            There is a house with 3 doors:<br>
+                            One red, one yellow, and one blue.<br><br>
+                            Which color do you choose?
+                        </div>
+                        <div class="choices">
+                            <button class="choice-btn door-btn red" onclick="makeChoice('red')">🚪 Red Door</button>
+                            <button class="choice-btn door-btn yellow" onclick="makeChoice('yellow')">🚪 Yellow Door</button>
+                            <button class="choice-btn door-btn blue" onclick="makeChoice('blue')">🚪 Blue Door</button>
+                        </div>
+                    `;
+                } else {
+                    showGameOver("Attacked by trout! 🐟");
+                }
+            } else if (currentStage === 'doors') {
+                if (choice === 'red') {
+                    showGameOver("You are burned by fire! 🔥");
+                } else if (choice === 'yellow') {
+                    showVictory("You found the treasure! 💰✨");
+                } else if (choice === 'blue') {
+                    showGameOver("You enter a room of beasts! 🐺");
+                } else {
+                    showGameOver("You chose a door that doesn't exist!");
+                }
+            }
+        }
+        
+        function showGameOver(message) {
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="game-over">
+                    💀 GAME OVER 💀<br><br>
+                    ${message}
+                    <br><br>
+                    <button class="restart-btn" onclick="restartGame()">🔄 Try Again</button>
+                </div>
+            `;
+        }
+        
+        function showVictory(message) {
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="victory">
+                    🎉 VICTORY! 🎉<br><br>
+                    ${message}<br>
+                    You Win!
+                    <br><br>
+                    <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+                </div>
+            `;
+        }
+        
+        function restartGame() {
+            currentStage = 'crossroad';
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="story-text">
+                    Welcome to Treasure Island!<br>
+                    Your mission is to find the treasure.<br><br>
+                    You are at a crossroad. Where do you want to go?
+                </div>
+                
+                <div class="choices">
+                    <button class="choice-btn" onclick="makeChoice('left')">🚶‍♂️ Go Left</button>
+                    <button class="choice-btn" onclick="makeChoice('right')">🚶‍♂️ Go Right</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

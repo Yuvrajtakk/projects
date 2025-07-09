@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess The Number - TotM Theme</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 GUESS THE NUMBER 🎮</h1>
+    <p>I’m thinking of a number between <strong>1 and 100</strong>.</p>
+
+    <div class="difficulty">
+      <button onclick="setDifficulty('easy')">EASY</button>
+      <button onclick="setDifficulty('hard')">HARD</button>
+    </div>
+
+    <p id="attempts">Attempts: -</p>
+    <div class="hearts" id="heartsContainer"></div>
+
+    <input type="number" id="guessInput" placeholder="Enter your guess" />
+    <button onclick="submitGuess()">GUESS</button>
+
+    <p id="feedback">Start guessing...</p>
+
+    <button onclick="restartGame()">🔄 Restart</button>
+    <button onclick="toggleMusic()" id="musicButton">🎵 Music On</button>
+  </div>
+
+  <!-- Sound Effects -->
+  <audio id="bgMusic" src="sounds/bg-music.wav" loop></audio>
+  <audio id="correctSound" src="sounds/correct.mp3"></audio>
+  <audio id="wrongSound" src="sounds/wrong.mp3"></audio>
+  <audio id="loseSound" src="sounds/lose.mp3"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

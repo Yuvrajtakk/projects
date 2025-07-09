@@ -1,0 +1,79 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Press Start 2P', cursive;
+  background-color: #000;
+  color: #ffec00;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.container {
+  max-width: 90vw;
+  padding: 20px;
+  box-shadow: 0 0 20px #ffec00;
+  border: 3px solid #ffec00;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 15px #ffec00; }
+  50% { box-shadow: 0 0 30px #ffec00; }
+}
+
+.difficulty button,
+button,
+input[type="number"] {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 12px;
+  padding: 10px;
+  margin: 5px;
+  background-color: #ffec00;
+  border: none;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ffec00;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  box-shadow: 0 0 20px #ffec00;
+  transform: scale(1.05);
+}
+
+input[type="number"] {
+  background-color: black;
+  color: #ffec00;
+  border: 2px solid #ffec00;
+  text-align: center;
+  width: 80%;
+}
+
+.hearts {
+  margin: 10px 0;
+}
+
+.heart {
+  font-size: 24px;
+  color: red;
+  margin: 0 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.heart.fade-out {
+  transform: scale(1.5);
+  opacity: 0;
+}
+
+@media (max-width: 600px) {
+  .container {
+    font-size: 10px;
+  }
+
+  input[type="number"] {
+    font-size: 10px;
+  }
+}
