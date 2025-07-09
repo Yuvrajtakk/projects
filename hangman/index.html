@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Patrick Hand', cursive;
+            background-color: #f0f4f8;
+            color: #1e293b;
+        }
+        .keyboard-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .keyboard-btn:hover {
+            transform: scale(1.1);
+            background-color: #60a5fa; /* blue-400 */
+            color: white;
+        }
+        .keyboard-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            background-color: #94a3b8; /* slate-400 */
+        }
+        #hangman-svg .figure-part {
+            stroke: #334155; /* slate-700 */
+            stroke-width: 4;
+            fill: transparent;
+            stroke-linecap: round;
+            display: none; /* Hide all parts initially */
+        }
+        .letter-box {
+            border-bottom: 4px solid #334155;
+            width: 40px;
+            height: 50px;
+            font-size: 2.5rem;
+            line-height: 50px;
+        }
+        @media (max-width: 640px) {
+            .letter-box {
+                width: 30px;
+                height: 40px;
+                font-size: 2rem;
+                line-height: 40px;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 text-slate-800">Hangman</h1>
+        <p id="game-status" class="text-xl md:text-2xl mb-6 h-8"></p>
+
+        <div class="flex flex-col md:flex-row items-center justify-around gap-8">
+            <!-- Hangman Drawing -->
+            <div class="w-full md:w-1/2 max-w-sm">
+                <svg id="hangman-svg" viewBox="0 0 200 250" class="w-full h-auto">
+                    <!-- Gallows -->
+                    <line x1="20" y1="230" x2="100" y2="230" class="figure-part" style="display: block; stroke-width: 3;" />
+                    <line x1="60" y1="230" x2="60" y2="20" class="figure-part" style="display: block; stroke-width: 3;" />
+                    <line x1="60" y1="20" x2="150" y2="20" class="figure-part" style="display: block; stroke-width: 3;" />
+                    <line x1="150" y1="20" x2="150" y2="50" class="figure-part" style="display: block; stroke-width: 3;" />
+
+                    <!-- Man parts -->
+                    <circle cx="150" cy="70" r="20" id="head" class="figure-part" />
+                    <line x1="150" y1="90" x2="150" y2="150" id="body" class="figure-part" />
+                    <line x1="150" y1="110" x2="120" y2="130" id="arm-left" class="figure-part" />
+                    <line x1="150" y1="110" x2="180" y2="130" id="arm-right" class="figure-part" />
+                    <line x1="150" y1="150" x2="120" y2="180" id="leg-left" class="figure-part" />
+                    <line x1="150" y1="150" x2="180" y2="180" id="leg-right" class="figure-part" />
+                </svg>
+            </div>
+
+            <!-- Game Info -->
+            <div class="w-full md:w-1/2 flex flex-col items-center justify-center gap-8">
+                <!-- Word Display -->
+                <div id="word-display" class="flex flex-wrap justify-center gap-2 md:gap-4">
+                    <!-- Letters will be generated here -->
+                </div>
+
+                <!-- Keyboard -->
+                <div id="keyboard" class="flex flex-wrap justify-center gap-2">
+                    <!-- Keyboard buttons will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Game Over -->
+        <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+            <div class="bg-white p-8 rounded-2xl shadow-2xl text-center w-11/12 max-w-md transform transition-all scale-95">
+                <h2 id="modal-title" class="text-4xl font-bold mb-4"></h2>
+                <p id="modal-text" class="text-lg mb-6"></p>
+                <button id="play-again-btn" class="bg-blue-500 text-white font-bold py-3 px-8 rounded-lg text-xl hover:bg-blue-600 transition-colors">
+                    Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Elements ---
+        const wordDisplay = document.getElementById('word-display');
+        const keyboardContainer = document.getElementById('keyboard');
+        const gameStatus = document.getElementById('game-status');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalText = document.getElementById('modal-text');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        
+        // Hangman SVG parts
+        const figureParts = ['head', 'body', 'arm-left', 'arm-right', 'leg-left', 'leg-right'];
+
+        // --- Game Data ---
+        const wordList = [
+            'abruptly', 'absurd', 'abyss', 'affix', 'askew', 'avenue', 'awkward', 'axiom', 'azure', 'bagpipes',
+            'bandwagon', 'banjo', 'bayou', 'beekeeper', 'bikini', 'blitz', 'blizzard', 'boggle', 'bookworm',
+            'boxcar', 'boxful', 'buckaroo', 'buffalo', 'buffoon', 'buxom', 'buzzard', 'buzzing', 'buzzwords',
+            'caliph', 'cobweb', 'cockiness', 'croquet', 'crypt', 'curacao', 'cycle', 'daiquiri', 'dirndl',
+            'disavow', 'dizzying', 'duplex', 'dwarves', 'embezzle', 'equip', 'espionage', 'euouae', 'exodus',
+            'faking', 'fishhook', 'fixable', 'fjord', 'flapjack', 'flopping', 'fluffiness', 'flyby', 'foxglove',
+            'frazzled', 'frizzled', 'fuchsia', 'funny', 'gabby', 'galaxy', 'galvanize', 'gazebo', 'giaour',
+            'gizmo', 'glowworm', 'glyph', 'gnarly', 'gnostic', 'gossip', 'grogginess', 'haiku', 'haphazard',
+            'hyphen', 'iatrogenic', 'icebox', 'injury', 'ivory', 'ivy', 'jackpot', 'jaundice', 'jawbreaker',
+            'jaywalk', 'jazziest', 'jazzy', 'jelly', 'jigsaw', 'jinx', 'jiujitsu', 'jockey', 'jogging',
+            'joking', 'jovial', 'joyful', 'juicy', 'jukebox', 'jumbo', 'kayak', 'kazoo', 'keyhole', 'khaki',
+            'kilobyte', 'kiosk', 'kitsch', 'kiwifruit', 'klutz', 'knapsack', 'larynx', 'lengths', 'lucky',
+            'luxury', 'lymph', 'marquis', 'matrix', 'megahertz', 'microwave', 'mnemonic', 'mystify', 'naphtha',
+            'nightclub', 'nowadays', 'numbskull', 'nymph', 'onyx', 'ovary', 'oxidize', 'oxygen', 'pajama',
+            'peekaboo', 'phlegm', 'pixel', 'pizazz', 'pneumonia', 'polka', 'pshaw', 'psyche', 'puppy',
+            'puzzling', 'quartz', 'queue', 'quips', 'quixotic', 'quiz', 'quizzes', 'quorum', 'razzmatazz',
+            'rhubarb', 'rhythm', 'rickshaw', 'schnapps', 'scratch', 'shiv', 'snazzy', 'sphinx', 'spritz',
+            'squawk', 'staff', 'strength', 'strengths', 'stretch', 'stronghold', 'stymied', 'subway',
+            'swivel', 'syndrome', 'thriftless', 'thumbscrew', 'topaz', 'transcript', 'transgress',
+            'transplant', 'triphthong', 'twelfth', 'twelfths', 'unknown', 'unworthy', 'unzip', 'uptown',
+            'vaporize', 'vixen', 'vodka', 'voodoo', 'vortex', 'voyeurism', 'walkway', 'waltz', 'wave',
+            'wavy', 'waxy', 'wellspring', 'wheezy', 'whiskey', 'whizzing', 'whomever', 'wimpy',
+            'witchcraft', 'wizard', 'woozy', 'wristwatch', 'wyvern', 'xylophone', 'yachtsman', 'yippee',
+            'yoked', 'youthful', 'yummy', 'zephyr', 'zigzag', 'zigzagging', 'zilch', 'zipper', 'zodiac', 'zombie'
+        ];
+
+        // --- Game State ---
+        let chosenWord = '';
+        let correctLetters = [];
+        let wrongGuesses = 0;
+        const maxWrongGuesses = 6;
+
+        // --- Functions ---
+
+        // Function to start or restart the game
+        function startGame() {
+            // Reset game state
+            chosenWord = wordList[Math.floor(Math.random() * wordList.length)];
+            correctLetters = [];
+            wrongGuesses = 0;
+            
+            // Reset UI
+            gameStatus.textContent = `You have ${maxWrongGuesses} guesses left.`;
+            modal.classList.add('hidden');
+            
+            // Hide all figure parts
+            figureParts.forEach(part => {
+                document.getElementById(part).style.display = 'none';
+            });
+
+            // Create word display placeholders
+            wordDisplay.innerHTML = chosenWord
+                .split('')
+                .map(() => `<div class="letter-box text-center font-mono font-bold"></div>`)
+                .join('');
+
+            // Create keyboard
+            keyboardContainer.innerHTML = 'abcdefghijklmnopqrstuvwxyz'
+                .split('')
+                .map(letter => `
+                    <button class="keyboard-btn w-10 h-10 md:w-12 md:h-12 bg-slate-200 rounded-lg text-xl md:text-2xl font-bold" data-letter="${letter}">
+                        ${letter}
+                    </button>
+                `)
+                .join('');
+        }
+
+        // Function to handle a letter guess
+        function handleGuess(letter) {
+            if (chosenWord.includes(letter)) {
+                // Correct guess
+                if (!correctLetters.includes(letter)) {
+                    correctLetters.push(letter);
+                    updateWordDisplay();
+                }
+            } else {
+                // Incorrect guess
+                wrongGuesses++;
+                updateHangman();
+                gameStatus.textContent = `You have ${maxWrongGuesses - wrongGuesses} guesses left.`;
+            }
+            checkGameState();
+        }
+        
+        // Function to update the word display with correct letters
+        function updateWordDisplay() {
+            const letterBoxes = wordDisplay.querySelectorAll('.letter-box');
+            chosenWord.split('').forEach((letter, index) => {
+                if (correctLetters.includes(letter)) {
+                    letterBoxes[index].textContent = letter;
+                }
+            });
+        }
+
+        // Function to update the hangman drawing
+        function updateHangman() {
+            if (wrongGuesses > 0) {
+                const partToShow = figureParts[wrongGuesses - 1];
+                document.getElementById(partToShow).style.display = 'block';
+            }
+        }
+
+        // Function to check if the game is won or lost
+        function checkGameState() {
+            // Check for win
+            const isWon = chosenWord.split('').every(letter => correctLetters.includes(letter));
+            if (isWon) {
+                showModal(true);
+                return;
+            }
+
+            // Check for loss
+            if (wrongGuesses >= maxWrongGuesses) {
+                showModal(false);
+            }
+        }
+
+        // Function to show the game over modal
+        function showModal(isWin) {
+            if (isWin) {
+                modalTitle.textContent = 'You Won! �';
+                modalText.textContent = `Congratulations! You guessed the word: "${chosenWord}".`;
+                modalTitle.style.color = '#22c55e'; // green-500
+            } else {
+                modalTitle.textContent = 'You Lost! 💀';
+                modalText.textContent = `The correct word was: "${chosenWord}". Better luck next time!`;
+                modalTitle.style.color = '#ef4444'; // red-500
+            }
+            modal.classList.remove('hidden');
+            modal.querySelector('div').classList.add('scale-100');
+        }
+
+        // --- Event Listeners ---
+
+        // Keyboard button clicks
+        keyboardContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const button = e.target;
+                const letter = button.dataset.letter;
+                button.disabled = true;
+                handleGuess(letter);
+            }
+        });
+
+        // Play again button
+        playAgainBtn.addEventListener('click', startGame);
+
+        // --- Initial Game Start ---
+        startGame();
+
+    </script>
+</body>
+</html>
+�
