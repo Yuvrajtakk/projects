@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Even darker background */
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .logo {
+            font-family: 'Share Tech Mono', monospace;
+            white-space: pre;
+            text-align: center;
+            color: #34d399; /* Emerald green accent */
+            font-size: 0.8rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+        .game-board {
+            background-color: #1e293b; /* Darker board */
+            border: 1px solid #334155;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+        }
+        .card {
+            width: 100px;
+            height: 140px;
+            background-color: #f8fafc;
+            color: #1e293b;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .card.hidden {
+            background-image:
+                radial-gradient(circle at 10px 10px, #475569 2px, transparent 0),
+                radial-gradient(circle at 90px 10px, #475569 2px, transparent 0),
+                radial-gradient(circle at 10px 130px, #475569 2px, transparent 0),
+                radial-gradient(circle at 90px 130px, #475569 2px, transparent 0),
+                linear-gradient(45deg, transparent 48%, #475569 48%, #475569 52%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, #475569 48%, #475569 52%, transparent 52%);
+            background-color: #334155;
+        }
+        .card .suit {
+            font-size: 1.5rem;
+        }
+        .card .rank {
+            align-self: center;
+            font-size: 3rem;
+        }
+        .card.red {
+            color: #ef4444;
+        }
+        .btn {
+            transition: all 0.2s ease;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .message-box {
+            transition: all 0.5s ease-in-out;
+            min-height: 40px;
+        }
+        .area-title {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-4xl mx-auto">
+        <div class="logo">
+.------.            _     _            _    _            _    
+|A_  _ |.          | |   | |          | |  (_)          | |   
+|( \/ ).-----.     | |__ | | __ _  ___| | ___  __ _  ___| | __
+| \  /|K /\  |     | '_ \| |/ _` |/ __| |/ / |/ _` |/ __| |/ /
+|  \/ | /  \ |     | |_) | | (_| | (__|   <| | (_| | (__|   < 
+`-----| \  / |     |_.__/|_|\__,_|\___|_|\_\ |\__,_|\___|_|\_\
+      |  \/ K|                            _/ |                
+      `------'                           |__/           
+        </div>
+
+        <div id="game-board" class="game-board p-4 sm:p-8 space-y-6">
+            <!-- Dealer's Area -->
+            <div id="dealer-area" class="text-center">
+                <div class="area-title">
+                    <h2 class="text-3xl font-bold text-slate-300">Dealer</h2>
+                    <p class="text-xl text-slate-400">Score: <span id="dealer-score" class="font-bold text-slate-200">?</span></p>
+                </div>
+                <div id="dealer-cards" class="flex flex-wrap justify-center items-center gap-4 min-h-[140px]"></div>
+            </div>
+
+            <!-- Message Area -->
+            <div id="message-box" class="message-box flex items-center justify-center text-center text-2xl font-bold">&nbsp;</div>
+
+            <!-- Player's Area -->
+            <div id="player-area" class="text-center">
+                 <div class="area-title">
+                    <h2 class="text-3xl font-bold text-slate-300">Your Hand</h2>
+                    <p class="text-xl text-slate-400">Score: <span id="player-score" class="font-bold text-slate-200">0</span></p>
+                </div>
+                <div id="player-cards" class="flex flex-wrap justify-center items-center gap-4 min-h-[140px]"></div>
+            </div>
+
+            <!-- Controls -->
+            <div id="controls" class="flex flex-wrap justify-center gap-4 pt-6 border-t-2 border-slate-700">
+                <button id="hit-btn" class="btn bg-blue-600 hover:bg-blue-500 text-white py-3 px-8 text-xl">Hit</button>
+                <button id="stand-btn" class="btn bg-yellow-500 hover:bg-yellow-400 text-slate-900 py-3 px-8 text-xl">Stand</button>
+                <button id="new-game-btn" class="btn bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-8 text-xl">New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM ELEMENTS ---
+        const dealerCardsEl = document.getElementById('dealer-cards');
+        const playerCardsEl = document.getElementById('player-cards');
+        const dealerScoreEl = document.getElementById('dealer-score');
+        const playerScoreEl = document.getElementById('player-score');
+        const messageBox = document.getElementById('message-box');
+        const hitBtn = document.getElementById('hit-btn');
+        const standBtn = document.getElementById('stand-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+
+        // --- GAME STATE VARIABLES ---
+        let playerHand = [];
+        let dealerHand = [];
+        let playerScore = 0;
+        let dealerScore = 0;
+        let deck = [];
+        let isGameOver = false;
+
+        // --- GAME LOGIC FUNCTIONS ---
+
+        /**
+         * Creates and shuffles a standard 52-card deck.
+         */
+        function createDeck() {
+            const suits = ['♠', '♣', '♥', '♦'];
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            deck = [];
+            for (const suit of suits) {
+                for (const rank of ranks) {
+                    let value = parseInt(rank);
+                    if (['J', 'Q', 'K'].includes(rank)) value = 10;
+                    if (rank === 'A') value = 11;
+                    deck.push({ suit, rank, value });
+                }
+            }
+            // Shuffle the deck
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        /**
+         * Calculates the score of a given hand, handling Aces correctly.
+         * @param {Array} hand - An array of card objects.
+         * @returns {number} The calculated score.
+         */
+        function calculateScore(hand) {
+            let score = hand.reduce((sum, card) => sum + card.value, 0);
+            let numAces = hand.filter(card => card.rank === 'A').length;
+            while (score > 21 && numAces > 0) {
+                score -= 10;
+                numAces--;
+            }
+            return score;
+        }
+
+        /**
+         * Creates an HTML element for a card.
+         * @param {Object} card - The card object {suit, rank, value}.
+         * @param {boolean} [isHidden=false] - If true, renders the back of the card.
+         * @returns {HTMLElement} The card div element.
+         */
+        function createCardElement(card, isHidden = false) {
+            const cardEl = document.createElement('div');
+            cardEl.classList.add('card');
+            if (isHidden) {
+                cardEl.classList.add('hidden');
+            } else {
+                const isRed = ['♥', '♦'].includes(card.suit);
+                if(isRed) cardEl.classList.add('red');
+                cardEl.innerHTML = `
+                    <div class="suit">${card.suit}</div>
+                    <div class="rank">${card.rank}</div>
+                    <div class="suit self-end rotate-180">${card.suit}</div>
+                `;
+            }
+            return cardEl;
+        }
+        
+        /**
+         * Renders the current state of the hands and scores to the UI.
+         */
+        function renderGame() {
+            playerCardsEl.innerHTML = '';
+            dealerCardsEl.innerHTML = '';
+
+            playerHand.forEach(card => playerCardsEl.appendChild(createCardElement(card)));
+            playerScoreEl.textContent = playerScore;
+
+            dealerHand.forEach((card, index) => {
+                const isHidden = index === 0 && !isGameOver;
+                dealerCardsEl.appendChild(createCardElement(card, isHidden));
+            });
+
+            if (isGameOver) {
+                dealerScoreEl.textContent = dealerScore;
+            } else {
+                dealerScoreEl.textContent = '?';
+            }
+        }
+
+        /**
+         * Displays a message to the user and handles game over state.
+         * @param {string} text - The message to display.
+         * @param {boolean} isFinal - True if this is a game-ending message.
+         */
+        function displayMessage(text, isFinal = false) {
+            messageBox.innerHTML = text; // Use innerHTML to render emojis
+            if (isFinal) {
+                isGameOver = true;
+                hitBtn.disabled = true;
+                standBtn.disabled = true;
+                hitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                standBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        /**
+         * Compares final scores and determines the winner.
+         */
+        function compareScores() {
+            if (playerScore > 21) return displayMessage("You went over. You lose 😭", true);
+            if (dealerScore > 21) return displayMessage("Dealer went over. You win 😁", true);
+            if (playerScore === dealerScore) return displayMessage("Draw 🙃", true);
+            if (playerScore > dealerScore) return displayMessage("You win 😃", true);
+            return displayMessage("You lose 😤", true);
+        }
+
+        /**
+         * Handles the dealer's turn logic.
+         */
+        function dealerTurn() {
+            isGameOver = true;
+            dealerScore = calculateScore(dealerHand);
+            renderGame();
+
+            const dealerInterval = setInterval(() => {
+                if (dealerScore < 17) {
+                    dealerHand.push(deck.pop());
+                    dealerScore = calculateScore(dealerHand);
+                    renderGame();
+                } else {
+                    clearInterval(dealerInterval);
+                    compareScores();
+                }
+            }, 1000);
+        }
+
+        /**
+         * Starts a new game of Blackjack.
+         */
+        function startGame() {
+            isGameOver = false;
+            playerHand = [];
+            dealerHand = [];
+            
+            createDeck();
+
+            playerHand.push(deck.pop());
+            dealerHand.push(deck.pop());
+            playerHand.push(deck.pop());
+            dealerHand.push(deck.pop());
+
+            playerScore = calculateScore(playerHand);
+            dealerScore = calculateScore(dealerHand);
+
+            messageBox.innerHTML = '&nbsp;';
+            hitBtn.disabled = false;
+            standBtn.disabled = false;
+            hitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            standBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            renderGame();
+
+            if (playerScore === 21) {
+                displayMessage("Win with a Blackjack 😎", true);
+                dealerScore = calculateScore(dealerHand);
+                renderGame();
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        hitBtn.addEventListener('click', () => {
+            if (isGameOver) return;
+            playerHand.push(deck.pop());
+            playerScore = calculateScore(playerHand);
+            renderGame();
+            if (playerScore > 21) {
+                displayMessage("Bust! You lose 😭", true);
+                dealerScore = calculateScore(dealerHand);
+                renderGame();
+            }
+        });
+
+        standBtn.addEventListener('click', () => {
+            if (isGameOver) return;
+            dealerTurn();
+        });
+
+        newGameBtn.addEventListener('click', startGame);
+
+        // --- INITIALIZE GAME ---
+        window.onload = startGame;
+    </script>
+</body>
+</html>
