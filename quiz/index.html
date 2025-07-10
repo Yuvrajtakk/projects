@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBC Style Quiz | By Yuvraj Tak</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the KBC look and feel */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #020024;
+            background: radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,29,36,1) 100%);
+            color: white;
+            overflow: hidden; /* Prevents scrollbars from the background gradient */
+        }
+
+        /* This creates the iconic hexagonal shape for question and answer boxes */
+        .kbc-box {
+            clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+            transition: all 0.3s ease;
+        }
+        
+        /* New "Glassmorphism" style for UI elements */
+        .glass-ui {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-ui:hover:not(.disabled) {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .option-box.correct {
+            background: rgba(40, 167, 69, 0.8) !important; /* Green for correct */
+            border-color: #fff !important;
+            transform: scale(1.05);
+        }
+
+        .option-box.incorrect {
+            background: rgba(220, 53, 69, 0.8) !important; /* Red for incorrect */
+            border-color: #fff !important;
+        }
+        
+        .option-box.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .timer-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,193,7,1) 0%, rgba(255,165,0,1) 100%);
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #000;
+            border: 4px solid #020024;
+        }
+
+        /* Custom animation for the timer */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(255, 193, 7, 1); }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+        }
+        .timer-pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        #final-score-modal {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Audio elements for music and sound effects -->
+    <!-- IMPORTANT: Replace with your actual music file paths -->
+    <audio id="theme-music" src="kbc_theme.mp3" preload="auto"></audio>
+    <audio id="question-intro-sound" src="kbc_question_intro.mp3" preload="auto"></audio>
+    <audio id="timer-sound" src="kbc_timer.mp3" loop preload="auto"></audio>
+    <audio id="correct-sound" src="kbc_correct.mp3" preload="auto"></audio>
+    <audio id="wrong-sound" src="kbc_wrong.mp3" preload="auto"></audio>
+
+    <div id="game-container" class="w-full max-w-4xl mx-auto text-center">
+
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <img src="https://i.imgur.com/gB2gA48.png" alt="KBC Logo" class="w-48 h-48 mx-auto mb-8 drop-shadow-2xl" onerror="this.onerror=null;this.src='https://placehold.co/192x192/020024/FFC107?text=KBC';">
+            <h1 class="text-4xl md:text-5xl font-bold text-yellow-400 mb-4" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.5);">Kaun Banega Crorepati</h1>
+            <p class="text-lg text-gray-300 mb-8">Meme Edition ✨</p>
+            <button id="start-btn" class="kbc-box glass-ui font-bold py-4 px-12 text-2xl hover:bg-yellow-400 transition-all duration-300">
+                START
+            </button>
+             <p class="text-xs text-gray-500 mt-12">Created by Yuvraj Tak</p>
+        </div>
+
+        <!-- Quiz Screen (Initially Hidden) -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6 px-4">
+                 <img src="https://i.imgur.com/gB2gA48.png" alt="KBC Logo" class="w-20 h-20" onerror="this.onerror=null;this.src='https://placehold.co/80x80/020024/FFC107?text=KBC';">
+                <div id="timer" class="timer-circle">30</div>
+                <div id="score-display" class="text-2xl font-bold text-yellow-400">
+                    Score: ₹0
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div id="question-box" class="kbc-box glass-ui p-6 mb-8 min-h-[120px] flex items-center justify-center opacity-0">
+                <p id="question-text" class="text-xl md:text-2xl font-semibold"></p>
+            </div>
+
+            <!-- Options Container -->
+            <div id="options-container" class="flex justify-center items-center gap-8 opacity-0">
+                <!-- True/False buttons will be dynamically inserted here -->
+            </div>
+        </div>
+        
+        <!-- Final Score Modal (Initially Hidden) -->
+        <div id="final-score-modal" class="hidden fixed inset-0 flex items-center justify-center z-50">
+            <div class="glass-ui rounded-lg p-8 text-center shadow-2xl max-w-md w-full">
+                <h2 class="text-3xl font-bold text-yellow-400 mb-4">Game Over!</h2>
+                <p class="text-xl mb-2">You've completed the quiz.</p>
+                <p id="final-score-text" class="text-2xl font-bold mb-6"></p>
+                <button id="restart-btn" class="kbc-box glass-ui bg-yellow-500 text-black font-bold py-3 px-10 text-xl hover:bg-yellow-400">
+                    Play Again
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA ---
+        const questionData = [
+            {"question": "The 'Moye Moye' trend originated from a Serbian song about sorrow and despair.", "correct_answer": "True"},
+            {"question": "The viral audio 'Just looking like a wow' became famous from a video of a woman selling salwar suits.", "correct_answer": "True"},
+            {"question": "The 'Elvish Bhai' meme is a catchphrase associated with a winner of the reality show Bigg Boss OTT.", "correct_answer": "True"},
+            {"question": "The 'Pedro' meme features a dancing raccoon and uses the song 'Macarena'.", "correct_answer": "False"},
+            {"question": "The 'Aukat Dikha Di' audio clip that went viral is a dialogue from a famous Bollywood movie.", "correct_answer": "False"},
+            {"question": "The 'So beautiful, so elegant' meme originated from a video of a man describing an outfit at a market.", "correct_answer": "True"},
+            {"question": "The meme 'The boys' featuring characters with glowing eyes is from the Amazon Prime show of the same name.", "correct_answer": "True"},
+            {"question": "The 'Bhupendra Jogi' meme came from a viral interview with a street vendor in the USA.", "correct_answer": "False"},
+            {"question": "The 'Orry' character, known for his unique poses and celebrity friends, is a fictional character created for social media.", "correct_answer": "False"},
+            {"question": "The phrase 'Idhar dikha' is famously associated with a paparazzi photographer who often says it to celebrities.", "correct_answer": "True"}
+        ];
+
+        const prizeMoney = [1000, 2000, 3000, 5000, 10000, 20000, 40000, 80000, 160000, 320000];
+
+        // --- DOM ELEMENTS ---
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const finalScoreModal = document.getElementById('final-score-modal');
+        const questionBox = document.getElementById('question-box');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const timerEl = document.getElementById('timer');
+        const scoreDisplay = document.getElementById('score-display');
+        const finalScoreText = document.getElementById('final-score-text');
+        
+        // Audio Elements
+        const themeMusic = document.getElementById('theme-music');
+        const questionIntroSound = document.getElementById('question-intro-sound');
+        const timerSound = document.getElementById('timer-sound');
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+
+        // --- GAME STATE ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 30;
+        let gameFlowTimeout;
+
+        // --- FUNCTIONS ---
+        
+        function beginExperience() {
+            // This function is the entry point, triggered by a click.
+            // It's now safe to play audio.
+            themeMusic.play().catch(e => console.log("Audio play failed."));
+
+            // Hide the start button after it's clicked
+            startBtn.classList.add('hidden');
+            
+            // Start the game after the 10-second theme song
+            gameFlowTimeout = setTimeout(startGame, 10000); 
+        }
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            startScreen.classList.add('hidden');
+            finalScoreModal.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            scoreDisplay.textContent = `Score: ₹0`;
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questionData.length) {
+                endGame();
+                return;
+            }
+
+            // Hide previous question and options
+            questionBox.classList.add('opacity-0');
+            optionsContainer.classList.add('opacity-0');
+            optionsContainer.innerHTML = '';
+            
+            const currentQuestion = questionData[currentQuestionIndex];
+            questionTextEl.innerHTML = currentQuestion.question;
+
+            // Play the 5-second question intro sound
+            questionIntroSound.play().catch(e => console.log("Audio play failed."));
+            
+            // After the intro sound, show the question and start the timer
+            gameFlowTimeout = setTimeout(() => {
+                questionBox.classList.remove('opacity-0');
+                optionsContainer.classList.remove('opacity-0');
+
+                const options = ["True", "False"];
+                options.forEach(option => {
+                    const optionBox = document.createElement('button');
+                    optionBox.classList.add('kbc-box', 'glass-ui', 'option-box', 'p-4', 'text-xl', 'font-bold', 'w-48');
+                    optionBox.textContent = option;
+                    optionBox.dataset.answer = option;
+                    optionBox.addEventListener('click', () => selectAnswer(optionBox, currentQuestion.correct_answer));
+                    optionsContainer.appendChild(optionBox);
+                });
+                
+                startTimer();
+            }, 5000); // 5 second question intro
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            timerEl.textContent = timeLeft;
+            timerEl.classList.add('timer-pulse');
+            timerSound.play().catch(e => console.log("Audio play failed."));
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(selectedOptionBox, correctAnswer) {
+            clearInterval(timer);
+            timerEl.classList.remove('timer-pulse');
+            timerSound.pause();
+            timerSound.currentTime = 0;
+
+            document.querySelectorAll('.option-box').forEach(box => box.classList.add('disabled'));
+
+            const selectedAnswer = selectedOptionBox.dataset.answer;
+
+            if (selectedAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                selectedOptionBox.classList.add('correct');
+                score = prizeMoney[currentQuestionIndex] || prizeMoney[prizeMoney.length - 1];
+                correctSound.play();
+                currentQuestionIndex++;
+                
+                // Wait for the 5-second correct sound to finish
+                gameFlowTimeout = setTimeout(loadQuestion, 5000);
+            } else {
+                selectedOptionBox.classList.add('incorrect');
+                wrongSound.play();
+                document.querySelectorAll('.option-box').forEach(box => {
+                    if (box.dataset.answer.toLowerCase() === correctAnswer.toLowerCase()) {
+                        box.classList.add('correct');
+                    }
+                });
+                // Wait for the 3-second wrong sound to finish
+                gameFlowTimeout = setTimeout(endGame, 3000);
+            }
+            
+            scoreDisplay.textContent = `Score: ₹${score.toLocaleString()}`;
+        }
+        
+        function timeUp() {
+            timerSound.pause();
+            timerSound.currentTime = 0;
+            wrongSound.play();
+            
+            document.querySelectorAll('.option-box').forEach(box => box.classList.add('disabled'));
+            
+            // Wait for the 3-second wrong sound to finish
+            gameFlowTimeout = setTimeout(endGame, 3000);
+        }
+
+        function endGame() {
+            quizScreen.classList.add('hidden');
+            finalScoreText.textContent = `Your Final Winnings: ₹${score.toLocaleString()}`;
+            finalScoreModal.classList.remove('hidden');
+        }
+
+        // --- EVENT LISTENERS ---
+        startBtn.addEventListener('click', beginExperience);
+        restartBtn.addEventListener('click', () => window.location.reload());
+    </script>
+</body>
+</html>
