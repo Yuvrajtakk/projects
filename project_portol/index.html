@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Projects Portal - Premium Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-gradient: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .header-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.7; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 1; }
+        }
+
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enhanced card effects */
+        .project-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, box-shadow;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .project-card:hover::before {
+            left: 100%;
+        }
+
+        .project-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Project image containers */
+        .project-image {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .project-card:hover .project-image::after {
+            opacity: 1;
+        }
+
+        /* Category badges */
+        .category-badge {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Enhanced animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.6s ease-out forwards;
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-text-accent {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Search input enhancement */
+        .search-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 50px;
+            z-index: -1;
+        }
+
+        /* Filter button enhancements */
+        .filter-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .filter-btn:hover::before {
+            left: 100%;
+        }
+
+        .active-filter {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Floating action button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(240, 147, 251, 0.6);
+        }
+
+        /* Responsive enhancements */
+        @media (max-width: 768px) {
+            .project-card:hover {
+                transform: translateY(-8px) scale(1.01);
+            }
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main Container -->
+    <div class="relative container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 z-10">
+
+        <!-- Header Section -->
+        <header class="text-center mb-12 md:mb-20 fade-in-up">
+            <div class="mb-6">
+                <div class="inline-block p-4 glass rounded-3xl mb-6">
+                    <div class="text-6xl">🐍</div>
+                </div>
+            </div>
+            <h1 class="header-font text-6xl md:text-8xl font-black gradient-text mb-6 tracking-tight">
+                Project Showcase
+            </h1>
+            <p class="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto mb-4 leading-relaxed">
+                An interactive collection of my <span class="gradient-text-accent font-bold">Python</span> creations. 
+                Explore, play, and discover what's possible with code.
+            </p>
+            <div class="glass-dark rounded-full px-6 py-3 inline-block">
+                <p class="text-white/80 font-medium">Crafted with ❤️ by <span class="gradient-text-accent font-bold">Yuvraj Tak</span></p>
+            </div>
+        </header>
+
+        <!-- Search and Filter Section -->
+        <div class="mb-12 flex flex-col lg:flex-row justify-between items-center gap-6 glass rounded-2xl p-6 slide-in-left">
+            <div class="relative w-full lg:w-2/5 search-container">
+                <input type="text" id="searchInput" 
+                       placeholder="Search projects by name or description..." 
+                       class="w-full pl-12 pr-4 py-4 border-0 rounded-full bg-white/10 backdrop-blur-md text-white placeholder-white/70 focus:ring-2 focus:ring-cyan-400 focus:outline-none transition-all duration-300 shadow-lg">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-white/70">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </div>
+            </div>
+            <div id="filterButtons" class="flex flex-wrap justify-center gap-3">
+                <button class="filter-btn active-filter text-white px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300" data-filter="all">
+                    All Projects
+                </button>
+                <button class="filter-btn glass-dark text-white/90 hover:text-white px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300" data-filter="Top Games">
+                    🏆 Top Games
+                </button>
+                <button class="filter-btn glass-dark text-white/90 hover:text-white px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300" data-filter="Standard Games">
+                    🎮 Standard Games
+                </button>
+                <button class="filter-btn glass-dark text-white/90 hover:text-white px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300" data-filter="Utility Tools">
+                    🛠️ Utility Tools
+                </button>
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 slide-in-right">
+            <!-- Project cards will be injected here by JavaScript -->
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResults" class="text-center mt-16 hidden fade-in-up">
+            <div class="text-6xl mb-6">🔍</div>
+            <h3 class="text-2xl font-bold text-white mb-4">No projects found</h3>
+            <p class="text-white/70 text-lg">Try adjusting your search or filter criteria</p>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="flex justify-center items-center mt-16 hidden">
+            <div class="loading-spinner"></div>
+        </div>
+
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab flex items-center justify-center" onclick="scrollToTop()">
+        <i data-lucide="arrow-up" class="w-6 h-6 text-white"></i>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create animated particles
+            function createParticles() {
+                const particles = document.getElementById('particles');
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                    particles.appendChild(particle);
+                }
+            }
+
+            // Project data with enhanced descriptions and mock images
+            const projects = [
+                { 
+                    name: 'Blackjack', 
+                    category: 'Top Games', 
+                    url: 'https://blackjack-eight-sage.vercel.app/', 
+                    description: 'Experience the thrill of Vegas with this premium blackjack game featuring stunning animations and realistic gameplay mechanics.', 
+                    icon: '🎰',
+                    color: 'from-red-500 to-pink-600',
+                    image: 'https://images.unsplash.com/photo-1606889464198-fcb18894cf6c?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'KBC Quiz', 
+                    category: 'Top Games', 
+                    url: 'https://kbcquiz-psi.vercel.app/', 
+                    description: 'Test your knowledge in this immersive quiz experience inspired by "Who Wants to Be a Millionaire?" with engaging sound effects.', 
+                    icon: '💡',
+                    color: 'from-yellow-500 to-orange-600',
+                    image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Higher or Lower', 
+                    category: 'Top Games', 
+                    url: 'https://higherlower-jet.vercel.app/', 
+                    description: 'An addictive card prediction game with sleek design and smooth animations that will keep you guessing.', 
+                    icon: '🧠',
+                    color: 'from-blue-500 to-purple-600',
+                    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Hangman', 
+                    category: 'Top Games', 
+                    url: 'https://hangman-ivory-mu.vercel.app/', 
+                    description: 'Classic word guessing game with a modern twist, featuring beautiful graphics and challenging word collections.', 
+                    icon: '🔤',
+                    color: 'from-green-500 to-teal-600',
+                    image: 'https://images.unsplash.com/photo-1632501641765-e568d28b0015?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Treasure Island', 
+                    category: 'Standard Games', 
+                    url: 'https://treasureisland.vercel.app/', 
+                    description: 'Embark on an epic text-based adventure with multiple storylines, treasure hunting, and strategic decision making.', 
+                    icon: '🏝️',
+                    color: 'from-amber-500 to-yellow-600',
+                    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Rock Paper Scissors', 
+                    category: 'Standard Games', 
+                    url: 'https://rockpaperscissors-ashen-five.vercel.app/', 
+                    description: 'The timeless classic reimagined with stunning visuals, multiple game modes, and intelligent AI opponents.', 
+                    icon: '✊',
+                    color: 'from-stone-500 to-gray-600',
+                    image: 'https://images.unsplash.com/photo-1611371805429-8b5c1b2c34ba?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Guess the Number', 
+                    category: 'Standard Games', 
+                    url: 'https://guess-number-game-seven-ashen.vercel.app/', 
+                    description: 'A beautifully designed number guessing game with difficulty levels, hints, and achievement system.', 
+                    icon: '🔢',
+                    color: 'from-indigo-500 to-blue-600',
+                    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Calculator', 
+                    category: 'Utility Tools', 
+                    url: 'https://calculator-gold-mu-35.vercel.app/', 
+                    description: 'A sophisticated calculator with advanced functions, history tracking, and beautiful material design interface.', 
+                    icon: '🧮',
+                    color: 'from-cyan-500 to-blue-600',
+                    image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Password Generator', 
+                    category: 'Utility Tools', 
+                    url: 'https://passwordgenerator-tan-sigma.vercel.app/', 
+                    description: 'Generate ultra-secure passwords with customizable complexity, length, and character sets for maximum security.', 
+                    icon: '🔐',
+                    color: 'from-red-500 to-rose-600',
+                    image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=200&fit=crop'
+                },
+                { 
+                    name: 'Coffee Machine', 
+                    category: 'Utility Tools', 
+                    url: 'https://coffeemachine-rust.vercel.app/', 
+                    description: 'A realistic coffee machine simulation with multiple brew options, ingredient tracking, and barista-quality results.', 
+                    icon: '☕',
+                    color: 'from-orange-500 to-amber-600',
+                    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=200&fit=crop'
+                }
+            ];
+
+            const projectsGrid = document.getElementById('projectsGrid');
+            const searchInput = document.getElementById('searchInput');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const noResults = document.getElementById('noResults');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            // Enhanced render function with loading simulation
+            function renderProjects(filteredProjects) {
+                // Show loading
+                loadingSpinner.classList.remove('hidden');
+                projectsGrid.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    projectsGrid.innerHTML = '';
+                    noResults.classList.toggle('hidden', filteredProjects.length > 0);
+                    
+                    filteredProjects.forEach((project, index) => {
+                        const card = document.createElement('a');
+                        card.href = project.url;
+                        card.target = '_blank';
+                        card.rel = 'noopener noreferrer';
+                        card.className = 'project-card glass rounded-3xl shadow-2xl overflow-hidden flex flex-col fade-in-up group';
+                        card.style.animationDelay = `${index * 100}ms`;
+
+                        card.innerHTML = `
+                            <div class="project-image h-48 bg-gradient-to-br ${project.color} relative flex items-center justify-center">
+                                <div class="text-6xl transform group-hover:scale-110 transition-all duration-500 relative z-10">${project.icon}</div>
+                                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300"></div>
+                            </div>
+                            <div class="p-6 flex-grow flex flex-col bg-white/10 backdrop-blur-md">
+                                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300">${project.name}</h3>
+                                <p class="text-white/80 text-sm flex-grow mb-4 leading-relaxed">${project.description}</p>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <span class="category-badge text-xs font-semibold py-2 px-3 rounded-full text-white/90">
+                                        ${project.category}
+                                    </span>
+                                    <div class="text-sm font-semibold text-cyan-300 flex items-center group-hover:text-cyan-200 transition-colors duration-300">
+                                        <span class="mr-2">Launch</span>
+                                        <i data-lucide="external-link" class="w-4 h-4 group-hover:scale-110 transition-transform duration-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        projectsGrid.appendChild(card);
+                    });
+
+                    // Hide loading
+                    loadingSpinner.classList.add('hidden');
+                    projectsGrid.style.opacity = '1';
+                    lucide.createIcons();
+                }, 500);
+            }
+
+            // Enhanced filtering with debounce
+            let searchTimeout;
+            function filterAndSearch() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const activeFilter = document.querySelector('.filter-btn.active-filter').dataset.filter;
+
+                    const filteredProjects = projects.filter(p => 
+                        (activeFilter === 'all' || p.category === activeFilter) &&
+                        (p.name.toLowerCase().includes(searchTerm) || 
+                         p.description.toLowerCase().includes(searchTerm))
+                    );
+
+                    renderProjects(filteredProjects);
+                }, 300);
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterAndSearch);
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const currentActive = document.querySelector('.filter-btn.active-filter');
+                    if (currentActive) {
+                        currentActive.classList.remove('active-filter');
+                        currentActive.classList.add('glass-dark', 'text-white/90');
+                    }
+                    button.classList.add('active-filter');
+                    button.classList.remove('glass-dark', 'text-white/90');
+                    filterAndSearch();
+                });
+            });
+
+            // Scroll to top function
+            window.scrollToTop = function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            };
+
+            // Initialize
+            createParticles();
+            renderProjects(projects);
+            lucide.createIcons();
+
+            // Add some interactive flourishes
+            document.addEventListener('mousemove', (e) => {
+                const cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = (y - centerY) / 20;
+                        const rotateY = (centerX - x) / 20;
+                        
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-12px) scale(1.02)`;
+                    } else {
+                        card.style.transform = '';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
