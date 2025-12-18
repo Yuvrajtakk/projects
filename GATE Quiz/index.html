@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GATE Quiz</title>
+  <script defer src="quiz.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .question { margin-bottom: 10px; font-weight: bold; }
+    .options { list-style: none; padding: 0; }
+    .options li { margin: 5px 0; }
+    button { padding: 8px 12px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+<h1>GATE Quiz</h1>
+
+<div id="quiz-container">
+  <div id="question-box"></div>
+  <ul id="options-list"></ul>
+  <button id="next-btn">Next</button>
+</div>
+
+<div id="result-box" style="display:none;">
+  <h2>Results</h2>
+  <p id="score-text"></p>
+</div>
+
+</body>
+</html>
